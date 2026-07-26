@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Smart Agriculture Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    {% include 'navbar.html' %}
+
+    <div class="page-container">
+        <h1>Dashboard</h1>
+        <p>Current sensor readings from the farm:</p>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Sensor</th>
+                    <th>Reading</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Temperature</td>
+                    <td>{{ sensor_data.temperature }}</td>
+                </tr>
+                <tr>
+                    <td>Humidity</td>
+                    <td>{{ sensor_data.humidity }}</td>
+                </tr>
+                <tr>
+                    <td>Soil Moisture</td>
+                    <td>{{ sensor_data.soil_moisture }}</td>
+                </tr>
+                <tr>
+                    <td>Water Level</td>
+                    <td>{{ sensor_data.water_level }}</td>
+                </tr>
+                <tr>
+                    <td>Soil pH</td>
+                    <td>{{ sensor_data.soil_ph }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p class="note">Note: These values are sample sensor readings for demonstration purposes.</p>
+    </div>
+
+</body>
+</html>

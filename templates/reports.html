@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports - Smart Agriculture Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    {% include 'navbar.html' %}
+
+    <div class="page-container">
+        <h1>Reports</h1>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <h2>Upload Report</h2>
+        <form method="POST" action="{{ url_for('reports') }}" enctype="multipart/form-data" class="upload-form">
+            <input type="file" name="report_file" required>
+            <button type="submit">Upload</button>
+        </form>
+        <p class="note">
+            Files uploaded here are currently stored locally for demonstration.
+            In the AWS deployment, this will upload directly to an Amazon S3 bucket.
+        </p>
+
+        <h2>Uploaded Reports</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Download</th>
+                    {% if session.get('role') == 'Admin' %}
+                    <th>Delete</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr>
+                    <td>{{ report }}</td>
+                    <td>
+                        <a href="{{ url_for('reports_download', filename=report) }}">Download</a>
+                    </td>
+                    {% if session.get('role') == 'Admin' %}
+                    <td>
+                        <form method="POST" action="{{ url_for('reports_delete', filename=report) }}"
+                              onsubmit="return confirm('Delete {{ report }}? This cannot be undone.');">
+                            <button type="submit" class="delete-button">Delete</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                {% if not reports %}
+                <tr>
+                    <td colspan="3">No reports uploaded yet.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        {% if session.get('role') != 'Admin' %}
+        <p class="note">Note: Only Admin users can delete reports.</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>

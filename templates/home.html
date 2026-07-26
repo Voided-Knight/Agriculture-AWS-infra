@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - Smart Agriculture Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    {% include 'navbar.html' %}
+
+    <div class="page-container">
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <h1>Smart Agriculture Monitoring System</h1>
+
+        <p>
+            This application monitors farm conditions and securely stores reports
+            using AWS Cloud.
+        </p>
+
+        <h2>AWS Services Used</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>AWS Service</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in aws_services %}
+                <tr>
+                    <td>{{ service }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</body>
+</html>

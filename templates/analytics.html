@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Analytics - Smart Agriculture Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    {% include 'navbar.html' %}
+
+    <div class="page-container">
+        <h1>Analytics</h1>
+        <p>Simple statistics calculated from farm sensor data:</p>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Statistic</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Average Temperature</td>
+                    <td>{{ analytics_data.avg_temperature }}</td>
+                </tr>
+                <tr>
+                    <td>Average Humidity</td>
+                    <td>{{ analytics_data.avg_humidity }}</td>
+                </tr>
+                <tr>
+                    <td>Highest Moisture</td>
+                    <td>{{ analytics_data.highest_moisture }}</td>
+                </tr>
+                <tr>
+                    <td>Lowest Moisture</td>
+                    <td>{{ analytics_data.lowest_moisture }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p class="note">
+            These values are read from a CSV file stored on an Amazon EBS volume
+            attached to the EC2 instance.
+        </p>
+    </div>
+
+</body>
+</html>

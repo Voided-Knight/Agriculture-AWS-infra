@@ -1,0 +1,227 @@
+/* ---------------------------------------------------------
+   Smart Agriculture Monitoring System - Stylesheet
+   Simple, clean styling only. No frameworks, no animations,
+   no gradients, no glassmorphism, no dark mode.
+--------------------------------------------------------- */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f6f2;
+    color: #2e2e2e;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2 {
+    color: #2f5233;
+}
+
+/* -----------------------
+   Navigation Bar
+------------------------ */
+
+.navbar {
+    background-color: #4c7a3f;
+    padding: 12px 20px;
+}
+
+.navbar a {
+    color: #ffffff;
+    text-decoration: none;
+    margin-right: 20px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+/* -----------------------
+   Page Container
+------------------------ */
+
+.page-container {
+    max-width: 800px;
+    margin: 30px auto;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    padding: 25px 30px;
+}
+
+/* -----------------------
+   Login Page
+------------------------ */
+
+.login-container {
+    max-width: 400px;
+    margin: 80px auto;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    padding: 30px;
+    text-align: center;
+}
+
+.login-container form {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.login-container label {
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #aaaaaa;
+}
+
+.login-hint {
+    margin-top: 20px;
+    font-size: 13px;
+    color: #555555;
+    border-top: 1px solid #dddddd;
+    padding-top: 10px;
+}
+
+/* -----------------------
+   Buttons
+------------------------ */
+
+button {
+    background-color: #4c7a3f;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    margin-top: 15px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #3d6332;
+}
+
+.delete-button {
+    background-color: #a83232;
+    margin-top: 0;
+    padding: 6px 14px;
+    font-size: 13px;
+}
+
+.delete-button:hover {
+    background-color: #8a2828;
+}
+
+.data-table a {
+    color: #2f5233;
+}
+
+/* -----------------------
+   Tables
+------------------------ */
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.data-table th,
+.data-table td {
+    border: 1px solid #999999;
+    padding: 10px;
+    text-align: left;
+}
+
+.data-table th {
+    background-color: #e4ede0;
+}
+
+/* -----------------------
+   Forms
+------------------------ */
+
+.upload-form {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.upload-form input[type="file"] {
+    margin-right: 10px;
+}
+
+/* -----------------------
+   Flash Messages
+------------------------ */
+
+.flash-messages {
+    background-color: #fff8dc;
+    border: 1px solid #e0c97f;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+}
+
+.flash-messages p {
+    margin: 4px 0;
+}
+
+/* -----------------------
+   Architecture Diagram (About page)
+------------------------ */
+
+.architecture-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+    margin-bottom: 25px;
+}
+
+.arch-box {
+    border: 2px solid #4c7a3f;
+    background-color: #e4ede0;
+    padding: 12px 18px;
+    text-align: center;
+    width: 260px;
+}
+
+.arch-arrow {
+    font-size: 20px;
+    line-height: 1;
+    margin: 4px 0;
+}
+
+.vpc-wrapper {
+    border: 2px dashed #4c7a3f;
+    padding: 20px 20px 15px 20px;
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.vpc-label {
+    font-weight: bold;
+    margin-bottom: 12px;
+    color: #2f5233;
+}
+
+/* -----------------------
+   Misc
+------------------------ */
+
+.note {
+    font-size: 13px;
+    color: #555555;
+    margin-top: 15px;
+}

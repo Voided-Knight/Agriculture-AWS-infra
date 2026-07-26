@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Smart Agriculture Monitoring System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="login-container">
+        <h1>Smart Agriculture Monitoring System</h1>
+        <h2>Login</h2>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('login') }}">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="login-hint">
+            <p><strong>Demo Accounts:</strong></p>
+            <p>Admin &nbsp;-&nbsp; username: admin &nbsp;/&nbsp; password: admin123</p>
+            <p>Farmer -&nbsp; username: farmer &nbsp;/&nbsp; password: farmer123</p>
+        </div>
+    </div>
+
+</body>
+</html>
