@@ -1,20 +1,3 @@
-"""
-Smart Agriculture Monitoring System
-------------------------------------
-A simple Flask web application built for an AWS Cloud Computing assignment.
-
-This application demonstrates how a Flask app hosted on Amazon EC2 can be
-prepared to interact with Amazon S3 (for report storage) using an IAM Role
-attached to the EC2 instance (instead of hardcoded AWS Access Keys).
-
-AWS Services demonstrated (conceptually):
-    - Amazon EC2  : Hosts this Flask application
-    - Amazon S3   : Stores uploaded reports (crop reports, soil data, etc.)
-    - IAM Role    : Grants EC2 temporary, secure permissions to access S3
-    - Amazon EBS  : Stores analytics CSV files / application data
-    - Custom VPC  : Provides network isolation for the EC2 instance
-"""
-
 import os
 from functools import wraps
 
@@ -29,10 +12,6 @@ from flask import (
     send_from_directory
 )
 from werkzeug.utils import secure_filename
-
-# ---------------------------------------------------------------------------
-# App Configuration
-# ---------------------------------------------------------------------------
 
 app = Flask(__name__)
 app.secret_key = "smart-agriculture-secret-key"  # Used only for session signing (demo purposes)
@@ -146,128 +125,73 @@ ANALYTICS_DATA = {
 
 def upload_to_s3(file):
     """
-    Placeholder function for uploading a report file to Amazon S3.
-
-    When implemented, this function will:
-        1. Initialize a boto3 S3 client (credentials auto-loaded via the
-           EC2 instance's IAM Role - no access keys needed).
-        2. Call s3_client.upload_fileobj(file, S3_BUCKET_NAME, file.filename)
-           to upload the file directly to the S3 bucket.
-
-    Args:
-        file: A werkzeug FileStorage object from request.files.
-
-    Returns:
-        bool: True if the "upload" succeeded (placeholder always returns True).
+    Upload a report directly to Amazon S3.
     """
-    # TODO (AWS Deployment Step):
-    #   import boto3
-    #   s3_client = boto3.client("s3")
-    #   s3_client.upload_fileobj(file, S3_BUCKET_NAME, file.filename)
-    #
-    # For now (local/demo mode), we simply save the file to the local
-    # 'uploads' folder so the Reports page can display, download, and
-    # delete it. secure_filename() strips out any unsafe characters/paths.
+
     if file and file.filename:
         safe_name = secure_filename(file.filename)
-        save_path = os.path.join(app.config["UPLOAD_FOLDER"], safe_name)
-        file.save(save_path)
+
+        s3_client.upload_fileobj(
+            file,
+            S3_BUCKET_NAME,
+            S3_REPORT_PREFIX + safe_name
+        )
+
         return True
+
     return False
 
 
 def list_reports():
-    """
-    Lists all report files currently available.
+    response = s3_client.list_objects_v2(
+        Bucket=S3_BUCKET_NAME,
+        Prefix=S3_REPORT_PREFIX
+    )
 
-    Local/demo mode: reads the filenames directly from the local 'uploads'
-    folder.
+    reports = []
 
-    AWS mode: this will instead call boto3's list_objects_v2() to fetch the
-    list of object keys from the S3 bucket. Because this function always
-    returns a plain list of filenames, no other part of the app (routes or
-    templates) needs to change when the AWS version is switched on.
+    if "Contents" not in response:
+        return reports
 
-    Returns:
-        list: A sorted list of report filenames.
-    """
-    # TODO (AWS Deployment Step):
-    #   import boto3
-    #   s3_client = boto3.client("s3")
-    #   response = s3_client.list_objects_v2(Bucket=S3_BUCKET_NAME)
-    #   return [obj["Key"] for obj in response.get("Contents", [])]
+    for obj in response["Contents"]:
+        key = obj["Key"]
 
-    if not os.path.exists(app.config["UPLOAD_FOLDER"]):
-        return []
+        if key == S3_REPORT_PREFIX:
+            continue
 
-    files = os.listdir(app.config["UPLOAD_FOLDER"])
-    files = [f for f in files if not f.startswith(".")]  # ignore hidden files
-    return sorted(files)
+        reports.append(key.replace(S3_REPORT_PREFIX, ""))
+
+    return sorted(reports)
 
 
 def download_report(filename):
-    """
-    Checks whether a report exists and returns its local file path so the
-    Flask route can send it to the user.
+    try:
+        url = s3_client.generate_presigned_url(
+            "get_object",
+            Params={
+                "Bucket": S3_BUCKET_NAME,
+                "Key": S3_REPORT_PREFIX + filename
+            },
+            ExpiresIn=300
+        )
 
-    Local/demo mode: looks for the file inside the local 'uploads' folder.
+        return url
 
-    AWS mode: this will instead either:
-        (a) call s3_client.download_file(S3_BUCKET_NAME, filename, tmp_path)
-            to fetch the object into a temporary local path, or
-        (b) generate a pre-signed URL with
-            s3_client.generate_presigned_url() and redirect the user to it
-            (recommended - avoids routing the file through the EC2 instance).
-
-    Args:
-        filename (str): The name/key of the report file to download.
-
-    Returns:
-        str or None: The full local file path if the file exists, otherwise None.
-    """
-    # TODO (AWS Deployment Step):
-    #   import boto3
-    #   s3_client = boto3.client("s3")
-    #   url = s3_client.generate_presigned_url(
-    #       "get_object",
-    #       Params={"Bucket": S3_BUCKET_NAME, "Key": filename},
-    #       ExpiresIn=300  # link valid for 5 minutes
-    #   )
-    #   return url   # the route would then redirect() to this URL
-
-    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    if os.path.isfile(file_path):
-        return file_path
-    return None
+    except Exception:
+        return None
 
 
 def delete_report(filename):
-    """
-    Deletes a report file. Restricted to Admin users at the route level.
+    try:
+        s3_client.delete_object(
+            Bucket=S3_BUCKET_NAME,
+            Key=S3_REPORT_PREFIX + filename
+        )
 
-    Local/demo mode: removes the file from the local 'uploads' folder.
-
-    AWS mode: this will instead call
-        s3_client.delete_object(Bucket=S3_BUCKET_NAME, Key=filename)
-    to remove the object from the S3 bucket.
-
-    Args:
-        filename (str): The name/key of the report file to delete.
-
-    Returns:
-        bool: True if the file was found and deleted, False otherwise.
-    """
-    # TODO (AWS Deployment Step):
-    #   import boto3
-    #   s3_client = boto3.client("s3")
-    #   s3_client.delete_object(Bucket=S3_BUCKET_NAME, Key=filename)
-    #   return True
-
-    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    if os.path.isfile(file_path):
-        os.remove(file_path)
         return True
-    return False
+
+    except Exception:
+        return False
 
 
 # ---------------------------------------------------------------------------
@@ -397,11 +321,7 @@ def reports_download(filename):
         flash(f"'{safe_name}' was not found.")
         return redirect(url_for("reports"))
 
-    return send_from_directory(
-        app.config["UPLOAD_FOLDER"],
-        safe_name,
-        as_attachment=True
-    )
+    return redirect(file_path)
 
 
 @app.route("/reports/delete/<filename>", methods=["POST"])
