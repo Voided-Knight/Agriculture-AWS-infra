@@ -1,5 +1,7 @@
 import os
 from functools import wraps
+import boto3
+from botocore.config import Config
 
 from flask import (
     Flask,
@@ -11,7 +13,16 @@ from flask import (
     flash,
     send_from_directory
 )
+
 from werkzeug.utils import secure_filename
+s3_client = boto3.client(
+    "s3",
+    region_name="ap-south-1",
+    config=Config(signature_version="s3v4"),
+)
+S3_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
+S3_REPORT_PREFIX = "reports/"
+EBS_DATASET_PATH = "/data/agriculture/current.csv"
 
 app = Flask(__name__)
 app.secret_key = "smart-agriculture-secret-key"  # Used only for session signing (demo purposes)
@@ -19,15 +30,9 @@ app.secret_key = "smart-agriculture-secret-key"  # Used only for session signing
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# Ensure the uploads folder exists locally.
-# NOTE: In the AWS version, files will instead be uploaded directly to an S3
-# bucket using boto3, so this local folder is only used for local/demo mode.
+
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-
-# ---------------------------------------------------------------------------
-# Hardcoded Users (No Database)
-# ---------------------------------------------------------------------------
 
 USERS = {
     "admin": {
@@ -93,35 +98,6 @@ ANALYTICS_DATA = {
 }
 
 
-# ---------------------------------------------------------------------------
-# AWS Helper Functions (Placeholders for future S3 integration via boto3)
-# ---------------------------------------------------------------------------
-#
-# These functions are intentionally left as placeholders. When this
-# application is deployed on an EC2 instance with an IAM Role attached,
-# boto3 will automatically use the EC2 instance's temporary security
-# credentials (Access Key, Secret Key, and Session Token) provided by the
-# IAM Role through the EC2 instance metadata service.
-#
-# This means:
-#   - No AWS Access Keys are hardcoded anywhere in this application.
-#   - boto3 uses the "default credential provider chain", which automatically
-#     detects and uses the IAM Role credentials when running on EC2.
-#   - The IAM Role attached to the EC2 instance must have a policy granting
-#     the necessary S3 permissions (e.g., s3:PutObject, s3:GetObject,
-#     s3:ListBucket, s3:DeleteObject) scoped to the specific S3 bucket.
-#
-# Example of how boto3 would be initialized (no keys required):
-#
-#     import boto3
-#     s3_client = boto3.client("s3")  # Credentials auto-loaded from IAM Role
-#
-# The actual S3 bucket name is intentionally NOT hardcoded here. When ready,
-# set it via an environment variable, e.g.:
-#
-#     S3_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
-#
-# ---------------------------------------------------------------------------
 
 def upload_to_s3(file):
     """
@@ -175,9 +151,11 @@ def download_report(filename):
             ExpiresIn=300
         )
 
+        print(url)
         return url
 
-    except Exception:
+    except Exception as e:
+        print(e)
         return None
 
 
@@ -194,6 +172,16 @@ def delete_report(filename):
         return False
 
 
+def save_current_dataset(file):
+    """
+    Save the latest uploaded CSV to the EBS volume.
+    """
+
+    file.seek(0)
+    file.save(EBS_DATASET_PATH)
+    file.seek(0)
+
+    return True
 # ---------------------------------------------------------------------------
 # Login Required Decorator
 # ---------------------------------------------------------------------------
